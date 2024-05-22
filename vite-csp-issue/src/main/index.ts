@@ -23,31 +23,6 @@ function createWindow(): void
     mainWindow.show()
   });
 
-  const cookie: Electron.CookiesSetDetails =
-  {
-    url: 'https://vaultic-api.vaulticserver.vaultic.co',
-    name: 'VaulticCookie',
-    value: 'cookie 2',
-    sameSite: 'lax',
-    secure: true
-  };
-
-  session.defaultSession.cookies.set(cookie).then(async () =>
-  {
-    await session.defaultSession.cookies.flushStore();
-    fetch('https://vaultic-api.vaulticserver.vaultic.co/Session/ValidateEmail', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: 'user@example.com',
-        loggedIn: true,
-      })
-    });
-  });
-
   mainWindow.webContents.setWindowOpenHandler((details) =>
   {
     shell.openExternal(details.url)
