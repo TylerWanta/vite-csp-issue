@@ -1,9 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-function createWindow(): void {
+function createWindow(): void
+{
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -17,20 +18,49 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', () =>
+  {
     mainWindow.show()
-  })
+  });
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  const cookie: Electron.CookiesSetDetails =
+  {
+    url: 'https://vaultic-api.vaulticserver.vaultic.co',
+    name: 'VaulticCookie',
+    value: 'cookie 2',
+    sameSite: 'lax',
+    secure: true
+  };
+
+  session.defaultSession.cookies.set(cookie).then(async () =>
+  {
+    await session.defaultSession.cookies.flushStore();
+    fetch('https://vaultic-api.vaulticserver.vaultic.co/Session/ValidateEmail', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'user@example.com',
+        loggedIn: true,
+      })
+    });
+  });
+
+  mainWindow.webContents.setWindowOpenHandler((details) =>
+  {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+  if (is.dev && process.env['ELECTRON_RENDERER_URL'])
+  {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
+  } else
+  {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
@@ -38,14 +68,16 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(() =>
+{
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
-  app.on('browser-window-created', (_, window) => {
+  app.on('browser-window-created', (_, window) =>
+  {
     optimizer.watchWindowShortcuts(window)
   })
 
@@ -54,7 +86,8 @@ app.whenReady().then(() => {
 
   createWindow()
 
-  app.on('activate', function () {
+  app.on('activate', function ()
+  {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -64,8 +97,10 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on('window-all-closed', () =>
+{
+  if (process.platform !== 'darwin')
+  {
     app.quit()
   }
 })
