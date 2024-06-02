@@ -2,6 +2,8 @@
 import Versions from './components/Versions.vue'
 
 const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+// @ts-ignore
+const failToSetCookie = () => window.failToSetCookie().then((r) => console.log(r)).catch((r) => console.log(r))
 </script>
 
 <template>
@@ -20,6 +22,9 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
     </div>
     <div class="action">
       <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>
+    </div>
+    <div class="action">
+      <a target="_blank" rel="noreferrer" @click="failToSetCookie">Fail to set cookie</a>
     </div>
   </div>
   <Versions />

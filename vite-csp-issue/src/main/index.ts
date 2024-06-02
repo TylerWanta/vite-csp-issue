@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import https from "https";
 
 function createWindow(): void
 {
@@ -66,8 +67,25 @@ app.whenReady().then(() =>
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
+  });
+
+  ipcMain.handle('failToSetCookie', (e) => failToSetCookie());
+});
+
+async function failToSetCookie(): Promise<string>
+{
+  try
+  {
+    const badCookie = { url: 'http://www.google.co', name: 'BadCookie', value: 'test;test' }
+    await session.defaultSession.cookies.set(badCookie);
+
+    return "set cookie";
+  }
+  catch (e)
+  {
+    return `Failed to set cookie. Error: ${JSON.stringify(e)}`;
+  }
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
